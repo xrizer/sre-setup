@@ -30,6 +30,29 @@ Pull image dan start Elasticsearch/Kibana pertama kali butuh beberapa menit. Log
 
 > Firewall hanya membuka port untuk IP Anda. Jika pindah jaringan (misal ke hotspot HP), update `my_ip_cidr` lalu `terraform apply` lagi.
 
+## Akses dashboard
+
+| Tool | URL | Fungsi |
+|---|---|---|
+| Grafana | `http://<IP>:3000` (user `admin`) | Dashboard metrics + panel error logs |
+| Prometheus | `http://<IP>:9090/alerts` | Status alert rules |
+| Kibana | `http://<IP>:5601` | Investigasi log (Discover) |
+| Elasticsearch | `http://<IP>:9200/_cat/indices?v` | REST API penyimpanan log |
+
+Jika port 5601/9090/9200 diblokir jaringan Anda (`ERR_CONNECTION_RESET`), buka tunnel dari Cloud Shell lalu pakai **Web Preview → Change port**:
+
+```bash
+gcloud compute ssh sre-demo --zone asia-southeast2-a -- -4 -N -L 5601:localhost:5601 -L 9200:localhost:9200 -L 9090:localhost:9090
+```
+
+Lupa password Grafana:
+
+```bash
+gcloud compute ssh sre-demo --zone asia-southeast2-a --command "cd ~/sre-demo && sudo docker compose exec -T grafana grafana cli admin reset-admin-password PasswordBaru123"
+```
+
+Gunakan password alfanumerik saja; karakter seperti `$ ! ' "` bisa rusak saat diteruskan lewat SSH.
+
 ## Skenario demo (±10 menit)
 
 1. **Kondisi normal** — buka Grafana, dashboard *Booking API - Golden Signals*. Availability ~100%, error budget penuh, tidak ada alert.
@@ -41,6 +64,8 @@ Pull image dan start Elasticsearch/Kibana pertama kali butuh beberapa menit. Log
 6. **Tutup** — jelaskan SLO 99,5%, error budget yang terpakai, dan isi postmortem (timeline, root cause, action items).
 
 ## Poin untuk dijelaskan
+
+- **Dua pilar observability**: Prometheus + Grafana untuk *metrics* (deteksi: ada masalah? seberapa parah?), Elasticsearch + Kibana untuk *logs* (investigasi: kenapa?). Elasticsearch adalah storage + search engine, Kibana adalah UI-nya, Filebeat pengirim log dari container. Pilar ketiga (traces) bisa ditambah dengan OpenTelemetry + Tempo/Jaeger.
 
 - Alert berbasis gejala yang dirasakan user (error rate, latency), bukan hanya CPU.
 - Metrics untuk mendeteksi, logs untuk menjelaskan penyebab.
