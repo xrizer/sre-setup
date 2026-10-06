@@ -36,6 +36,7 @@ Pull image dan start Elasticsearch/Kibana pertama kali butuh beberapa menit. Log
 2. **Inject insiden** — `./chaos.sh <IP> both` (30% error + 800 ms latency).
 3. **Deteksi** — panel Errors dan Latency naik melewati threshold. Dalam ±1 menit, `HighErrorRate` dan `HighLatencyP95` berstatus FIRING di Prometheus (`/alerts`) dan panel *Firing alerts* jadi merah.
 4. **Investigasi** — Kibana → Discover → data view *booking-api logs*, filter `app.level : "ERROR"`. Pesan `clinic-schedule-db: connection pool exhausted` dari komponen `clinic-scheduler` menunjukkan akar masalah.
+   Error log yang sama juga tampil di panel *Error logs (Elasticsearch)* di dashboard Grafana. Elasticsearch bisa diquery langsung: `http://<IP>:9200/_cat/indices?v` atau `http://<IP>:9200/filebeat-*/_search?q=app.level:ERROR&size=5&pretty`.
 5. **Mitigasi** — `./chaos.sh <IP> off`. Metrics pulih dan alert resolved.
 6. **Tutup** — jelaskan SLO 99,5%, error budget yang terpakai, dan isi postmortem (timeline, root cause, action items).
 

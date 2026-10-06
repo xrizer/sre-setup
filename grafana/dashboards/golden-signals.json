@@ -439,6 +439,48 @@
           "mode": "multi"
         }
       }
+    },
+    {
+      "id": 8,
+      "type": "logs",
+      "title": "Error logs (Elasticsearch)",
+      "datasource": {
+        "type": "elasticsearch",
+        "uid": "elasticsearch"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 21,
+        "w": 24,
+        "h": 10
+      },
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "elasticsearch",
+            "uid": "elasticsearch"
+          },
+          "query": "app.level:ERROR",
+          "timeField": "@timestamp",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "logs",
+              "settings": {
+                "limit": "100"
+              }
+            }
+          ],
+          "bucketAggs": []
+        }
+      ]
     }
   ],
   "templating": {

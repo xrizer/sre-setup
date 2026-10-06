@@ -46,7 +46,7 @@ resource "google_compute_firewall" "sre_demo_ui" {
 
   allow {
     protocol = "tcp"
-    ports    = ["3000", "5601", "8080", "9090"]
+    ports    = ["3000", "5601", "8080", "9090", "9200"]
   }
 
   source_ranges = [var.my_ip_cidr]
