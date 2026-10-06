@@ -1,0 +1,34 @@
+# Short windows so alerts fire quickly during a live demo.
+# In production use 5m+ windows or multi-window burn-rate alerts.
+groups:
+  - name: booking-api-slo
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[1m]))
+            / sum(rate(http_requests_total[1m])) > 0.05
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Booking API error rate above 5%"
+          description: "Error rate is {{ $value | humanizePercentage }}. Check booking-api logs in Kibana."
+
+      - alert: HighLatencyP95
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket[1m])) by (le)) > 0.5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Booking API p95 latency above 500ms"
+          description: "p95 latency is {{ $value | humanizeDuration }}."
+
+      - alert: BookingApiDown
+        expr: up{job="booking-api"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Booking API is not being scraped"
